@@ -1,13 +1,3 @@
-/*
- * Copyright (C), 2002-2015, 苏宁易购电子商务有限公司
- * FileName: ZipCompressUtil.java
- * Author:   张超(14080608)
- * Date:     2015-12-28 下午5:47:57
- * Description: //模块目的、功能描述      
- * History: //修改记录
- * <author>      <time>      <version>    <desc>
- * 修改人姓名             修改时间            版本号                  描述
- */
 package com.fred.code.framework.util;
 
 import java.io.File;
@@ -22,30 +12,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-/**
- * 〈一句话功能简述〉<br>
- * 〈功能详细描述〉
- * 
- * @author 张超(14080608)
- * @see [相关类/方法]（可选）
- * @since [产品/模块版本] （可选）
- */
 public class ZipUtil {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ZipUtil.class);
 
-    /**
-     * 
-     * 功能描述: <br>
-     * 文件压缩,文件名不能包含中文，否则乱码
-     * 
-     * @param targetFilePath
-     * @param originFilePath
-     * @throws Exception
-     * @author 张超(14080608)
-     * @see [相关类/方法](可选)
-     * @since [产品/模块版本](可选)
-     */
     public static boolean pack(String targetFilePath, String... originFilePath) {
         File targetFile = new File(targetFilePath);
         targetFile.getParentFile().mkdirs();

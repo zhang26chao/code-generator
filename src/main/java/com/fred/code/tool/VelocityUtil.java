@@ -11,13 +11,6 @@ import org.apache.velocity.VelocityContext;
 import org.apache.velocity.app.Velocity;
 import org.apache.velocity.app.VelocityEngine;
 
-/**
- * Created by IntelliJ IDEA.
- * User: 14080608
- * Date: 16-4-8
- * Time: 上午11:51
- * To change this template use File | Settings | File Templates.
- */
 public class VelocityUtil {
 
     private static final String ENCODING = "utf-8";

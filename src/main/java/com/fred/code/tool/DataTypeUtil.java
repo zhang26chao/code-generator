@@ -1,8 +1,3 @@
-/**
- * TODO
- * @author Administrator
- * Create on 2009-12-28
- */
 package com.fred.code.tool;
 
 import java.sql.Types;
