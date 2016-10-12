@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.mdm.dao.write.$!{packageName}.$!{dmoName}WriteMapper">
+
+    <resultMap id="$!{dmoName}" type="com.mdm.pojo.$!{dmoName}">
+        #foreach($column in $list)
+            <result property="$!{column.property}" column="$!{column.columnName}"/>
+        #end
+    </resultMap>
+
+    <insert id="insert">
+        insert into $!{tableName} (
+        #set ($i=0)
+        #foreach($column in $list)
+            #if($i == 0)
+                ${column.columnName}
+                #set($i=$i+1)
+            #else
+                ,  ${column.columnName}
+            #end
+        #end
+        ) values (
+        #set ($i=0)
+        #foreach($column in $list)
+            #if($i == 0)
+                #{${column.property}}
+                #set($i=$i+1)
+            #else
+                #if($!{column.primaryKey})
+                    ,SEQ_$!{tableName}.nextval
+                #else
+                    , #{${column.property}}
+                #end
+            #end
+        #end
+        )
+    </insert>
+
+    <update id="update">
+        update
+        $!{tableName}
+        <set>
+            #foreach($column in $list)
+                #if(!$!{column.primaryKey})
+                	#if($!{column.javaType} == "String")
+                    <if test="$!{column.property} != null and $!{column.property} != ''">$!{column.columnName} =
+                        #{$!{column.property}},
+                    </if>
+                    #else
+                    <if test="$!{column.property} != null">$!{column.columnName} =
+                        #{$!{column.property}},
+                    </if>
+                    #end
+                #end
+            #end
+        </set>
+        #if($!{count} > 0)
+            where
+            #set ($flag = false)
+            #foreach($column in $list)
+                #if($!{column.primaryKey})
+                    #if($flag == false)
+                        $!{column.columnName} = #{$!{column.property}}
+                        #set ($flag = true)
+                    #else
+                        and $!{column.columnName} = #{$!{column.property}}
+                    #end
+                #end
+            #end
+        #end
+    </update>
+
+    <select id="getById" resultMap="$!{dmoName}">
+        select
+        #set ($i=0)
+        #foreach($column in $list)
+            #if($i == 0)
+                $!{column.columnName}
+            #else
+                , $!{column.columnName}
+            #end
+            #set($i=$i+1)
+        #end
+        from
+        $!{tableName}
+        #if($!{count} > 0)
+            where
+            #set ($flag = false)
+            #foreach($column in $list)
+                #if($!{column.primaryKey})
+                    #if($flag == false)
+                        $!{column.columnName} = #{$!{column.property}}
+                        #set ($flag = true)
+                    #else
+                        and $!{column.columnName} = #{$!{column.property}}
+                    #end
+                #end
+            #end
+        #end
+    </select>
+
+    <delete id="deleteById">
+        update
+        	$!{tableName}
+        set
+        	IsDeleted = '1'
+        #if($!{count} > 0)
+            where
+            #set ($flag = false)
+            #foreach($column in $list)
+                #if($!{column.primaryKey})
+                    #if($flag == false)
+                        $!{column.columnName} = #{$!{column.property}}
+                        #set ($flag = true)
+                    #else
+                        and $!{column.columnName} = #{$!{column.property}}
+                    #end
+                #end
+            #end
+        #end
+    </delete>
+
+    <select id="queryPageList" parameterType="map"
+            resultMap="$!{dmoName}">
+        select
+        #set ($i=0)
+        #foreach($column in $list)
+            #if($i == 0)
+                $!{column.columnName}
+            #else
+                , $!{column.columnName}
+            #end
+            #set($i=$i+1)
+        #end
+        from
+        $!{tableName}
+        <where>
+        </where>
+    </select>
+</mapper>

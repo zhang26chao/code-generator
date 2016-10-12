@@ -1,0 +1,22 @@
+package com.mdm.dao.write.$!{packageName};
+
+import com.mdm.pojo.$!{dmoName};
+
+import java.util.List;
+import java.util.Map;
+import org.apache.ibatis.annotations.Mapper;
+
+@Mapper
+public interface $!{className}WriteMapper {
+
+    List<$!{dmoName}> queryPageList(Map<String, Object> params);
+    
+    int insert($!{dmoName} dmo);
+
+    int update($!{dmoName} dmo);
+
+    int deleteById(Long id);
+
+    $!{dmoName} getById(Long id);
+
+}

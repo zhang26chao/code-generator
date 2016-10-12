@@ -1,0 +1,21 @@
+package com.mdm.service.$!{packageName};
+
+import com.mdm.pojo.$!{dmoName};
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+public interface $!{className}Service {
+
+    List<$!{dmoName}> queryPageList(Map<String, Object> params);
+
+    public int insert($!{dmoName} dmo);
+
+    public int update($!{dmoName} dmo);
+
+    public int deleteById(Long id);
+
+    public $!{dmoName} getById(Long id);
+
+}

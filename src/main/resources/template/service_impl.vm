@@ -1,0 +1,39 @@
+package com.mdm.service.$!{packageName};
+
+import com.mdm.pojo.$!{dmoName};
+import com.mdm.dao.write.$!{packageName}.$!{className}Mapper;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+
+@Service
+public class $!{className}Service {
+
+    @Autowired
+    private $!{className}Mapper mapper;
+
+    public List<$!{dmoName}> queryPageList(Map<String, Object> params) {
+        return mapper.queryPageList(params);
+    }
+
+    public int insert($!{dmoName} dmo) {
+        return mapper.insert(dmo);
+    }
+
+    public int update($!{dmoName} dmo) {
+        return mapper.update(dmo);
+    }
+
+    public int deleteById(Long id) {
+        return mapper.deleteById(id);
+    }
+
+    public $!{dmoName} getById(Long id) {
+        return mapper.getById(id);
+    }
+
+}

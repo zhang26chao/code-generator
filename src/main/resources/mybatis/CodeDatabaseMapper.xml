@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.fred.code.dao.CodeDatabaseMapper">
+
+    <resultMap id="CodeDatabaseDmo" type="com.fred.code.domain.CodeDatabase">
+                    <result property="id" column="ID"/>
+                    <result property="type" column="TYPE"/>
+                    <result property="url" column="URL"/>
+                    <result property="username" column="USERNAME"/>
+                    <result property="password" column="PASSWORD"/>
+                    <result property="projectName" column="PROJECT_NAME"/>
+                    <result property="createTime" column="CREATE_TIME"/>
+            </resultMap>
+
+    <insert id="insert">
+        insert into CODE_DATABASE (
+												   TYPE
+                                                ,  URL
+                                                ,  USERNAME
+                                                ,  PASSWORD
+                                                ,  PROJECT_NAME
+                                                ,  CREATE_TIME
+                            ) values (
+																					 #{type}
+                                                                                    , #{url}
+                                                                                    , #{username}
+                                                                                    , #{password}
+                                                                                    , #{projectName}
+                                                                                    , #{createTime}
+                                            )
+    </insert>
+
+    <update id="update">
+        update
+        CODE_DATABASE
+        <set>
+                                                                            <if test="type != null and type != ''">TYPE =
+                        #{type},
+                    </if>
+                                                                <if test="url != null and url != ''">URL =
+                        #{url},
+                    </if>
+                                                                <if test="username != null and username != ''">USERNAME =
+                        #{username},
+                    </if>
+                                                                <if test="password != null and password != ''">PASSWORD =
+                        #{password},
+                    </if>
+                                                                <if test="projectName != null and projectName != ''">PROJECT_NAME =
+                        #{projectName},
+                    </if>
+                                                                <if test="createTime != null and createTime != ''">CREATE_TIME =
+                        #{createTime},
+                    </if>
+                                    </set>
+                    where
+                                                                                    ID = #{id}
+                                                                                                                                                                                                                                                            </update>
+
+    <select id="getById" resultMap="CodeDatabaseDmo">
+        select
+                                            ID
+                                                , TYPE
+                                                , URL
+                                                , USERNAME
+                                                , PASSWORD
+                                                , PROJECT_NAME
+                                                , CREATE_TIME
+                            from
+        CODE_DATABASE
+                    where
+                                                                                    ID = #{id}
+                                                                                                                                                                                                                                                            </select>
+
+    <delete id="deleteById">
+        delete from
+        CODE_DATABASE
+                    where
+                                                                                    ID = #{id}
+                                                                                   </delete>
+
+    <select id="pageList" parameterType="map"
+            resultMap="CodeDatabaseDmo">
+        select
+                                            ID
+                                                , TYPE
+                                                , URL
+                                                , USERNAME
+                                                , PASSWORD
+                                                , PROJECT_NAME
+                                                , CREATE_TIME
+                            from
+        CODE_DATABASE
+        <where>
+            <if test="ip != null and ip != ''">
+                and url like '%'||#{ip}||'%'
+            </if>
+        </where>
+    </select>
+</mapper>

@@ -1,0 +1,20 @@
+package com.mdm.pojo;
+
+import java.util.Date;
+import java.math.BigDecimal;
+
+public class $!{dmoName} {
+#foreach($column in $list)
+    private $!{column.javaType} $!{column.property};
+
+#end#foreach($column in $list)
+    public $!{column.javaType} get$!{column.capitalizeProperty}() {
+        return $!{column.property};
+    }
+
+    public void set$!{column.capitalizeProperty}($!{column.javaType} $!{column.property}) {
+        this.$!{column.property} = $!{column.property};
+    }
+
+#end
+}
