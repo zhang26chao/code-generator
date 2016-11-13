@@ -7,8 +7,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
-import com.arvato.page.domain.DalPage;
 import com.fred.code.domain.Page;
+import com.fred.page.domain.DalPage;
 
 /**
  * Created by IntelliJ IDEA. User: Administrator Date: 16-2-4 Time: 上午10:12 To
@@ -16,8 +16,8 @@ import com.fred.code.domain.Page;
  */
 public class BaseController {
 
-	protected <T> DalPage<T> getPage(HttpServletRequest request) {
-		DalPage<T> page = new DalPage<T>();
+	protected DalPage getPage(HttpServletRequest request) {
+		DalPage page = new DalPage();
 		String currentPage = request.getParameter(Page.PAGE_NUMBER);
 		if (StringUtils.isNotBlank(currentPage)) {
 			try {
@@ -30,7 +30,8 @@ public class BaseController {
 		request.setAttribute(Page.PAGE, page);
 		String path = (String) request.getAttribute(Page.ORIGINAL_SERVLET_PATH);
 		if (path == null) {
-			request.setAttribute(Page.ORIGINAL_SERVLET_PATH, request.getServletPath());
+			request.setAttribute(Page.ORIGINAL_SERVLET_PATH,
+					request.getServletPath());
 		}
 		return page;
 	}

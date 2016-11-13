@@ -83,9 +83,9 @@
 			<version>3.0.0</version>
 		</dependency>
 		<dependency>
-			<groupId>com.arvato</groupId>
+			<groupId>com.fred</groupId>
 			<artifactId>mybatis-page</artifactId>
-			<version>0.0.2</version>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<dependency>
 			<groupId>org.apache.velocity</groupId>
@@ -132,8 +132,8 @@
 				<version>2.5.1</version>
 				<inherited>true</inherited>
 				<configuration>
-					<source>1.8</source>
-					<target>1.8</target>
+					<source>1.7</source>
+					<target>1.7</target>
 				</configuration>
 			</plugin>
 			<plugin>
@@ -141,7 +141,7 @@
 				<artifactId>tomcat7-maven-plugin</artifactId>
 				<version>2.2</version>
 				<configuration>
-					<path>/mgp</path>
+					<path>/code</path>
 					<port>8080</port>
 					<uriEncoding>UTF-8</uriEncoding>
 					<url>http://localhost:8080/manager/html</url>

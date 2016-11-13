@@ -25,7 +25,7 @@ public class Tool {
 	/**
 	 * 代码存放路径
 	 */
-	private static final String CODE_PATH = "/usr/local/nginx/html/code/";
+	public static String savePath;
 
 	private static final String DATABASE_TYPE_DB2 = "DB2";
 
@@ -47,31 +47,36 @@ public class Tool {
 			dbConfig.setUsername("wsuser");
 			dbConfig.setPassword("wsuser");
 			dbConfig.setProjectName("ws");
-			generate(dbConfig, new String[] { "MOCK_RESPONSE", "CODE_DATABASE", "MOCK_RULE" });
+			generate(dbConfig, new String[] { "MOCK_RESPONSE", "CODE_DATABASE",
+					"MOCK_RULE" });
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 	}
 
-	private static Connection getConnection(CodeDatabase dbConfig) throws Exception {
-		Class.forName(DATABASE_TYPE_DB2.equals(dbConfig.getType()) ? DB2_DRIVER_CLASS_NAME : MYSQL_DRIVER_CLASS_NAME);
-		return DriverManager.getConnection(dbConfig.getUrl(), dbConfig.getUsername(), dbConfig.getPassword());
+	private static Connection getConnection(CodeDatabase dbConfig)
+			throws Exception {
+		Class.forName(DATABASE_TYPE_DB2.equals(dbConfig.getType()) ? DB2_DRIVER_CLASS_NAME
+				: MYSQL_DRIVER_CLASS_NAME);
+		return DriverManager.getConnection(dbConfig.getUrl(),
+				dbConfig.getUsername(), dbConfig.getPassword());
 	}
 
 	/**
 	 * load all tables
-	 *
+	 * 
 	 * @param dbConfig
 	 * @return
 	 * @throws Exception
 	 */
-	public static List<String> loadTables(CodeDatabase dbConfig) throws Exception {
+	public static List<String> loadTables(CodeDatabase dbConfig)
+			throws Exception {
 		Connection con = getConnection(dbConfig);
 		List<String> list = new ArrayList<String>();
 		// MySQL
 		if (!DATABASE_TYPE_DB2.equals(dbConfig.getType())) {
-			ResultSet rs = con.getMetaData().getTables(con.getCatalog(), dbConfig.getUsername(), null,
-					new String[] { "TABLE" });
+			ResultSet rs = con.getMetaData().getTables(con.getCatalog(),
+					dbConfig.getUsername(), null, new String[] { "TABLE" });
 			while (rs.next()) {
 				list.add(rs.getString("TABLE_NAME"));
 			}
@@ -82,11 +87,13 @@ public class Tool {
 		// DB2
 		String schema = dbConfig.getUsername().toUpperCase();
 		if (dbConfig.getUrl().contains(CURRENT_SCHEMA_FLAG)) {
-			int startIndex = dbConfig.getUrl().indexOf(CURRENT_SCHEMA_FLAG) + CURRENT_SCHEMA_FLAG.length();
+			int startIndex = dbConfig.getUrl().indexOf(CURRENT_SCHEMA_FLAG)
+					+ CURRENT_SCHEMA_FLAG.length();
 			int endIndex = dbConfig.getUrl().indexOf(";");
 			schema = dbConfig.getUrl().substring(startIndex, endIndex);
 		}
-		ResultSet rs = con.getMetaData().getTables(con.getCatalog(), schema, null, new String[] { "TABLE" });
+		ResultSet rs = con.getMetaData().getTables(con.getCatalog(), schema,
+				null, new String[] { "TABLE" });
 		while (rs.next()) {
 			list.add(rs.getString("TABLE_NAME"));
 		}
@@ -95,7 +102,8 @@ public class Tool {
 		return list;
 	}
 
-	public static String generate(CodeDatabase dbConfig, String tableNameStr) throws Exception {
+	public static String generate(CodeDatabase dbConfig, String tableNameStr)
+			throws Exception {
 		if (ALL_FLAG.equals(tableNameStr)) {
 			List<String> list = loadTables(dbConfig);
 			return generate(dbConfig, list.toArray(new String[list.size()]));
@@ -103,7 +111,8 @@ public class Tool {
 		return generate(dbConfig, StringUtils.split(tableNameStr, ","));
 	}
 
-	public static String generate(CodeDatabase dbConfig, String[] tableNames) throws Exception {
+	public static String generate(CodeDatabase dbConfig, String[] tableNames)
+			throws Exception {
 		Connection con = getConnection(dbConfig);
 		String tempFolder = RandomStringUtils.randomAlphanumeric(16) + "/";
 		for (String tableName : tableNames) {
@@ -128,19 +137,21 @@ public class Tool {
 			generateDmoFile(parameters, dbConfig, tempFolder);
 			generateDaoFile(parameters, dbConfig, tempFolder);
 			// generateDaoImplFile(parameters, dbConfig, tempFolder);
-//			generateServiceFile(parameters, dbConfig, tempFolder);
+			// generateServiceFile(parameters, dbConfig, tempFolder);
 			generateServiceImplFile(parameters, dbConfig, tempFolder);
 		}
 		con.close();
 		// 打包成zip
-		String destFileName = jointDestFileName(dbConfig.getProjectName(), tableNames);
-		ZipUtil.pack(CODE_PATH + destFileName, CODE_PATH + tempFolder);
+		String destFileName = jointDestFileName(dbConfig.getProjectName(),
+				tableNames);
+		ZipUtil.pack(savePath + destFileName, savePath + tempFolder);
 		// 删除原文件
-		FileUtils.deleteQuietly(new File(CODE_PATH + tempFolder));
+		FileUtils.deleteQuietly(new File(savePath + tempFolder));
 		return destFileName;
 	}
 
-	private static String jointDestFileName(String projectName, String[] tableNames) {
+	private static String jointDestFileName(String projectName,
+			String[] tableNames) {
 		StringBuilder builder = new StringBuilder(projectName);
 		if (tableNames.length == 1) {
 			builder.append(".").append(tableNames[0]);
@@ -151,83 +162,97 @@ public class Tool {
 
 	/**
 	 * generate sqlMapper.xml
-	 *
+	 * 
 	 * @param parameters
 	 * @throws Exception
 	 */
-	public static void generateSqlFile(Map<String, Object> parameters, String tempFolder) throws Exception {
+	public static void generateSqlFile(Map<String, Object> parameters,
+			String tempFolder) throws Exception {
 		File templateFile = ResourceUtils.getFile("classpath:template/sql.vm");
-		File file = createFile(tempFolder, "", parameters.get("className"), "Mapper.xml");
+		File file = createFile(tempFolder, "", parameters.get("className"),
+				"Mapper.xml");
 		VelocityUtil.render(templateFile, parameters, file);
 	}
 
 	/**
 	 * generate dmo.java
-	 *
+	 * 
 	 * @param parameters
 	 * @throws Exception
 	 */
-	public static void generateDmoFile(Map<String, Object> parameters, CodeDatabase dbConfig, String tempFolder)
-			throws Exception {
+	public static void generateDmoFile(Map<String, Object> parameters,
+			CodeDatabase dbConfig, String tempFolder) throws Exception {
 		File templateFile = ResourceUtils.getFile("classpath:template/dmo.vm");
 		String packagePath = createPackagePath("/pojo/");
-		File file = createFile(tempFolder, packagePath, parameters.get("className"), ".java");
+		File file = createFile(tempFolder, packagePath,
+				parameters.get("className"), ".java");
 		VelocityUtil.render(templateFile, parameters, file);
 	}
 
 	/**
 	 * generate dao.java
-	 *
+	 * 
 	 * @param parameters
 	 * @throws Exception
 	 */
-	public static void generateDaoFile(Map<String, Object> parameters, CodeDatabase dbConfig, String tempFolder)
-			throws Exception {
+	public static void generateDaoFile(Map<String, Object> parameters,
+			CodeDatabase dbConfig, String tempFolder) throws Exception {
 		File templateFile = ResourceUtils.getFile("classpath:template/dao.vm");
-		String packagePath = createPackagePath("/dao/write/", parameters.get("packageName"));
-		File file = createFile(tempFolder, packagePath, parameters.get("className"), "WriteMapper.java");
+		String packagePath = createPackagePath("/dao/write/",
+				parameters.get("packageName"));
+		File file = createFile(tempFolder, packagePath,
+				parameters.get("className"), "WriteMapper.java");
 		VelocityUtil.render(templateFile, parameters, file);
 	}
 
 	/**
 	 * generate daoImpl.java
-	 *
+	 * 
 	 * @param parameters
 	 * @throws Exception
 	 */
-	public static void generateDaoImplFile(Map<String, Object> parameters, CodeDatabase dbConfig, String tempFolder)
-			throws Exception {
-		File templateFile = ResourceUtils.getFile("classpath:template/dao-impl.vm");
-		String packagePath = createPackagePath("/dao/impl/", parameters.get("packageName"));
-		File file = createFile(tempFolder, packagePath, parameters.get("className"), "DaoImpl.java");
+	public static void generateDaoImplFile(Map<String, Object> parameters,
+			CodeDatabase dbConfig, String tempFolder) throws Exception {
+		File templateFile = ResourceUtils
+				.getFile("classpath:template/dao-impl.vm");
+		String packagePath = createPackagePath("/dao/impl/",
+				parameters.get("packageName"));
+		File file = createFile(tempFolder, packagePath,
+				parameters.get("className"), "DaoImpl.java");
 		VelocityUtil.render(templateFile, parameters, file);
 	}
 
 	/**
 	 * generate service.java
-	 *
+	 * 
 	 * @param parameters
 	 * @throws Exception
 	 */
-	public static void generateServiceFile(Map<String, Object> parameters, CodeDatabase dbConfig, String tempFolder)
-			throws Exception {
-		File templateFile = ResourceUtils.getFile("classpath:template/service.vm");
-		String packagePath = createPackagePath("/service/", parameters.get("packageName"));
-		File file = createFile(tempFolder, packagePath, parameters.get("className"), "Service.java");
+	public static void generateServiceFile(Map<String, Object> parameters,
+			CodeDatabase dbConfig, String tempFolder) throws Exception {
+		File templateFile = ResourceUtils
+				.getFile("classpath:template/service.vm");
+		String packagePath = createPackagePath("/service/",
+				parameters.get("packageName"));
+		File file = createFile(tempFolder, packagePath,
+				parameters.get("className"), "Service.java");
 		VelocityUtil.render(templateFile, parameters, file);
 	}
 
 	/**
 	 * generate serviceImpl.java
-	 *
+	 * 
 	 * @param parameters
 	 * @throws Exception
 	 */
-	public static void generateServiceImplFile(Map<String, Object> parameters, CodeDatabase dbConfig, String tempFolder)
-			throws Exception {
-		File templateFile = ResourceUtils.getFile("classpath:template/service_impl.vm");
-		String packagePath = createPackagePath("/service/", parameters.get("packageName"));
-		File file = createFile(tempFolder, packagePath, parameters.get("className"), "Service.java");
+	public static void generateServiceImplFile(Map<String, Object> parameters,
+			CodeDatabase dbConfig, String tempFolder) throws Exception {
+		File templateFile = ResourceUtils
+				.getFile("classpath:template/service_impl.vm");
+		String packagePath = createPackagePath("/service/",
+				parameters.get("packageName"));
+		File file = createFile(tempFolder, packagePath,
+				parameters.get("className"), "Service.java");
 		VelocityUtil.render(templateFile, parameters, file);
 	}
 
@@ -239,8 +264,10 @@ public class Tool {
 		return builder.append("/").toString();
 	}
 
-	private static File createFile(String tempFolder, String packagePath, Object className, String suffix) {
-		File file = new File(CODE_PATH + tempFolder + packagePath + className + suffix);
+	private static File createFile(String tempFolder, String packagePath,
+			Object className, String suffix) {
+		File file = new File(savePath + tempFolder + packagePath + className
+				+ suffix);
 		file.getParentFile().mkdirs();
 		return file;
 	}
@@ -255,10 +282,12 @@ public class Tool {
 		return keyField;
 	}
 
-	private static List<Column> getColumn(Connection con, String type, String tableName) throws Exception {
+	private static List<Column> getColumn(Connection con, String type,
+			String tableName) throws Exception {
 		List<String> primaryKeys = new ArrayList<String>();
 		DatabaseMetaData dataBaseMetaData = con.getMetaData();
-		ResultSet result = dataBaseMetaData.getPrimaryKeys(null, null, tableName);
+		ResultSet result = dataBaseMetaData.getPrimaryKeys(null, null,
+				tableName);
 		while (result.next()) {
 			primaryKeys.add(result.getString("COLUMN_NAME"));
 		}
@@ -270,10 +299,13 @@ public class Tool {
 			Column column = new Column();
 			column.setColumnName(metadata.getColumnName(i));
 			column.setProperty(getFieldName(metadata.getColumnName(i)));
-			column.setDataType(DataTypeUtil.getJavaDataType(metadata.getColumnType(i)));
+			column.setDataType(DataTypeUtil.getJavaDataType(metadata
+					.getColumnType(i)));
 			column.setPrimaryKey(primaryKeys.contains(metadata.getColumnName(i)));
-			column.setJavaType(DataTypeUtil.getJavaObjDataType(metadata.getColumnType(i)));
-			column.setCapitalizeProperty(StringUtils.capitalize(column.getProperty()));
+			column.setJavaType(DataTypeUtil.getJavaObjDataType(metadata
+					.getColumnType(i)));
+			column.setCapitalizeProperty(StringUtils.capitalize(column
+					.getProperty()));
 			columns.add(column);
 		}
 		prep.close();

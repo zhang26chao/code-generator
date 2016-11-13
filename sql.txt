@@ -1,0 +1,10 @@
+create table CODE_DATABASE(
+	ID bigint not null AUTO_INCREMENT,
+	TYPE varchar(16) not null,
+	URL varchar(512) not null,
+	USERNAME varchar(32) not null,
+	PASSWORD varchar(128) not null,
+	PROJECT_NAME varchar(32),
+	CREATE_TIME datetime not null,
+	primary key(ID)
+);

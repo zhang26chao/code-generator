@@ -9,6 +9,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,6 +31,12 @@ public class CodeDatabaseController extends BaseController {
 	@Autowired
 	private CodeDatabaseService codeDatabaseService;
 
+	@Value("${downloadUrl}")
+	private String downloadUrl;
+
+	@Value("${savePath}")
+	private String savePath;
+
 	@RequestMapping("list")
 	public ModelAndView list(HttpServletRequest request) {
 		Map<String, Object> map = getParameterMap(request);
@@ -48,6 +55,7 @@ public class CodeDatabaseController extends BaseController {
 	@RequestMapping("save")
 	public String save(CodeDatabase codeDatabase) {
 		codeDatabase.setCreateTime(new Date());
+		codeDatabase.setProjectName("code");
 		codeDatabaseService.insert(codeDatabase);
 		return "redirect:/code/list.do";
 	}
@@ -78,11 +86,13 @@ public class CodeDatabaseController extends BaseController {
 	}
 
 	@RequestMapping("loadTable")
-	public void loadTable(@RequestParam("id") Long id, HttpServletResponse response) {
+	public void loadTable(@RequestParam("id") Long id,
+			HttpServletResponse response) {
 		try {
 			CodeDatabase codeDatabase = codeDatabaseService.getById(id);
 			if (codeDatabase == null) {
-				response.getWriter().write("{'error':'true','msg':'id=[" + id + "]对应的数据库配置不存在.'}");
+				response.getWriter().write(
+						"{'error':'true','msg':'id=[" + id + "]对应的数据库配置不存在.'}");
 				return;
 			}
 			List<String> list = Tool.loadTables(codeDatabase);
@@ -90,7 +100,9 @@ public class CodeDatabaseController extends BaseController {
 		} catch (Throwable throwable) {
 			throwable.printStackTrace();
 			try {
-				response.getWriter().write("{'error':'true','msg':'" + throwable.getMessage() + "'}");
+				response.getWriter().write(
+						"{'error':'true','msg':'" + throwable.getMessage()
+								+ "'}");
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
@@ -98,20 +110,26 @@ public class CodeDatabaseController extends BaseController {
 	}
 
 	@RequestMapping("generate")
-	public void generate(@RequestParam("id") Long id, @RequestParam("tableName") String tableName,
+	public void generate(@RequestParam("id") Long id,
+			@RequestParam("tableName") String tableName,
 			HttpServletResponse response) {
 		try {
 			CodeDatabase codeDatabase = codeDatabaseService.getById(id);
 			if (codeDatabase == null) {
-				response.getWriter().write(String.format("生成失败，id=[%s]对应的数据库配置不存在.", id));
+				response.getWriter().write(
+						String.format("生成失败，id=[%s]对应的数据库配置不存在.", id));
 				return;
 			}
+			Tool.savePath = savePath;
 			String result = Tool.generate(codeDatabase, tableName);
-			response.getWriter().write("生成成功，<a href=\"http://10.27.103.227/code/" + result + "\">点击下载</a>");
+			response.getWriter().write(
+					String.format("生成成功，<a href=\"%s%s\">点击下载</a>",
+							downloadUrl, result));
 		} catch (Throwable throwable) {
 			throwable.printStackTrace();
 			try {
-				response.getWriter().write("生成失败，异常信息：" + throwable.getMessage());
+				response.getWriter().write(
+						"生成失败，异常信息：" + throwable.getMessage());
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
